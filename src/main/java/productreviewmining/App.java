@@ -4,9 +4,9 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import productreviewmining.semanticorientation.PhraseExtraction;
 import productreviewmining.util.Tokenizers;
 import productreviewmining.polarity.Polarity;
-import productreviewmining.util.POS;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +19,7 @@ public class App {
     public static void main(String[] args) throws IOException {
 
         String labrinthReview = String.join("\n", Files
-                .readAllLines(Paths.get("./build/resources/main/samples/labrinth-review.txt")));
+                .readAllLines(Paths.get("./build/resources/main/samples/nikon-sample.txt")));
 
         List<String> sentences = Arrays.asList(Tokenizers.sentenceDetector.sentDetect(labrinthReview));
         List<String> subjectiveSentences = sentences
@@ -29,9 +29,9 @@ public class App {
 
         for(String sent: subjectiveSentences) {
             String[] tokenized = Tokenizers.tokenizer.tokenize(sent);
-            String[] tags = POS.tagger.tag(tokenized);
-            System.out.println(Arrays.asList(tokenized));
-            System.out.println(Arrays.asList(tags));
+            String[] phrases = PhraseExtraction.getPhrases(tokenized);
+            System.out.println(sent);
+            System.out.println(Arrays.asList(phrases));
         }
     }
 }
