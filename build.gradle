@@ -23,6 +23,7 @@ repositories {
 dependencies {
     // This dependency is found on compile classpath of this component and consumers.
     compile 'com.google.guava:guava:21.0'
+    compile 'org.json:json:20160810'
 // https://mvnrepository.com/artifact/org.apache.opennlp/opennlp-tools
     compile group: 'org.apache.opennlp', name: 'opennlp-tools', version: '1.7.2'
 
