@@ -2,6 +2,7 @@ package productreviewmining;
 
 import productreviewmining.featureextraction.FeatureExtractor;
 import productreviewmining.util.Tokenizers;
+import productreviewmining.util.POS;
 import productreviewmining.polarity.Polarity;
 
 import org.json.JSONArray;
@@ -29,24 +30,45 @@ public class App {
 
         // String labrinthReview = String.join("\n", Files
         //         .readAllLines(Paths.get("./build/resources/main/samples/nikon-sample.txt")));
-        try {
-            Collection<List<String>> database = loadReviewDatabase(Paths.get(
-                    "/Users/affan/Desktop/Machine Learning Projects/Product Review Mining/build/resources/main/reviews/AMAZON-Apple-Factory-Unlocked-Internal-Smartphone-B00NQGP42Y.json"));
+        run();
 
+    }
+
+    public static void run() {
+        try {
+            Collection<List<String>> database = loadReviewDatabase(
+                    Paths.get("/Users/affan/Desktop/Machine Learning Projects/Product Review Mining/src/main/resources/reviews/AMAZON-B01M18UZF5.json"));
             // List<String> sentences = Arrays.asList(Tokenizers.sentenceDetector.sentDetect(labrinthReview));
             Collection<List<String>> subjectiveSentences = database.stream()
                     .filter((s) -> Polarity.calculateSentencePolarity(s) > 0).collect(Collectors.toList());
-            FeatureExtractor fe = new FeatureExtractor(database, 3);
+            FeatureExtractor fe = new FeatureExtractor(database, 10);
+            System.out.println(subjectiveSentences.size());
             for (List<String> sent : subjectiveSentences) {
-                System.out.println(sent);
+                String[] features = fe.extract(sent, 5);
+                if (features != null) {
+                    System.out.println("========");
+                    System.out.println(String.join(" ", sent));
+                    System.out.println(features[0]);
+                    System.out.println(features[1]);
+                }
             }
+            System.out.println("-------");
             System.out.println(fe.getFeatures());
+            System.out.println("************************");
+            String s = "Finally , the keyboard is a little mushy ... though the size/placement of the keys is nice .";
+            List<String> sent = Arrays.asList(Tokenizers.tokenizer.tokenize(s));
+            List<String> tags = Arrays.asList(POS.tagger.tag((String[]) sent.toArray()));
+            String[] features = fe.extract(sent, 5);
+            System.out.println(sent);
+            System.out.println(tags);
+            if (features != null)
+            System.out.println(Arrays.asList(features));
+
         } catch (IOException ex) {
             System.err.println(ex);
         }
-
     }
-    
+
     public static Collection<List<String>> loadReviewDatabase(Path jsonFilePath) throws IOException {
         Collection<List<String>> reviewDatabase = new ArrayList<>();
         JSONArray reviews = new JSONArray(String.join("\n", Files.readAllLines(jsonFilePath, StandardCharsets.UTF_8)));
@@ -54,7 +76,9 @@ public class App {
             JSONObject review = reviews.getJSONObject(i);
             String[] sents = Tokenizers.sentenceDetector.sentDetect(review.getString("text"));
             for (String sent : sents) {
-                reviewDatabase.add(Arrays.asList(Tokenizers.tokenizer.tokenize(sent)));
+                List<String> tokenized = Arrays.asList(Tokenizers.tokenizer.tokenize(sent));
+
+                reviewDatabase.add(tokenized);
             }
         }
 
